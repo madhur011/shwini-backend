@@ -13,9 +13,9 @@ app.use("/storage", express.static(path.join(__dirname, "storage")));
 const Routes = require("./route/index.route");
 app.use(Routes);
 
-// app.get("/*", function (req, res) {
-//   res.status(200).sendFile(path.join(__dirname, "public", "index.html"));
-// });
+app.get("/*", function (req, res) {
+  res.status(200).sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 
 //mongodb connection

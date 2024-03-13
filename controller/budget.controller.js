@@ -46,6 +46,7 @@ exports.createBudget = async (req, res) => {
 }
 exports.updateBudget = async (req, res) => {
   console.log("req.query", req.query);
+  console.log("req.file", req.file);
   try {
     if (!req.query.budgetId) {
       deleteFile(req?.file)

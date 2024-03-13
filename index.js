@@ -4,9 +4,6 @@ const app = express();
 const path = require("path");
 const cors = require("cors");
 require("dotenv").config({ path: ".env" });
-const Razorpay = require("razorpay");
-
-
 
 app.use(cors());
 app.use(express.json());
@@ -16,15 +13,15 @@ app.use("/storage", express.static(path.join(__dirname, "storage")));
 const Routes = require("./route/index.route");
 app.use(Routes);
 
-app.get("/*", function (req, res) {
-  res.status(200).sendFile(path.join(__dirname, "public", "index.html"));
-});
+// app.get("/*", function (req, res) {
+//   res.status(200).sendFile(path.join(__dirname, "public", "index.html"));
+// });
 
 
 //mongodb connection
-mongoose.set('strictQuery', true);
+mongoose.set("strictQuery", true);
 mongoose.connect(
-  `mongodb+srv://${process?.env.MONGODB_USERNAME}:${process?.env.MONGODB_PASSWORD}@cluster0.fc5injy.mongodb.net/${process?.env.MONGODB_DB_NAME}?retryWrites=true&w=majority`,
+  `mongodb+srv://${process?.env.MONGODB_USERNAME}:${process?.env.MONGODB_PASSWORD}@cluster0.fc5injy.mongodb.net/${process?.env.MONGODB_DB_NAME}`,
   // `mongodb+srv://Madhur:Mm01138@cluster0.fc5injy.mongodb.net/thevini?retryWrites=true&w=majority`,
   {
     useNewUrlParser: true,
@@ -43,6 +40,6 @@ db.once("open", () => {
   console.log("MONGO: successfully connected to db");
 });
 
-app.listen(5001, () => {
-  console.log("Magic happens on port " + 5001);
+app.listen(process?.env?.PORT, () => {
+  console.log("Magic happens on port " + process?.env?.PORT);
 });

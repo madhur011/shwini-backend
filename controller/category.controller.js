@@ -46,6 +46,7 @@ exports.createCategory = async (req, res) => {
 }
 exports.updateCategory = async (req, res) => {
   console.log("req.query", req.query);
+  console.log("req.file", req.file);
   try {
     if (!req.query.categoryId) {
       deleteFile(req?.file)

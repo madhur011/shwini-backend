@@ -80,7 +80,7 @@ exports.userLogin = async (req, res) => {
       user.mobileNo = req.body.mobileNo;
       user.password = req.body.password;
       user.customerId = uniqueId(12);
-      user.customerId = [];
+      user.address = [];
 
       await user.save();
 
@@ -92,7 +92,7 @@ exports.userLogin = async (req, res) => {
         profileImage: user.profileImage,
         mobileNo: user.mobileNo,
         customerId: user.customerId,
-        customerId: [],
+        address: [],
       }
 
       const token = jwt.sign(payload, process.env.JWT_SECRET);

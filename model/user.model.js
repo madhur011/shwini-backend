@@ -10,22 +10,24 @@ const userSchema = new mongoose.Schema(
     gender: { type: String, default: "" },
     profileImage: { type: String, default: "" },
     coverImage: { type: String, default: "" },
-    // loginType: { type: Number, eum: [0, 1] }, 
+    // loginType: { type: Number, eum: [0, 1] },
     // 0:login, 1:signin
     isOnline: { type: Boolean, default: false },
     isBlock: { type: Boolean, default: false },
-    address: [{
-      fullName: { type: String, default: "" },
-      phone: Number,
-      type: { type: String, default: "home" },
-      details: {
-        socName: { type: String, default: "" },
-        pincode: { type: Number, default: "" },
-        city: { type: String, default: "" },
-        state: { type: String, default: "" },
-        country: { type: String, default: "" },
-      }
-    }]
+    address: [
+      {
+        fullName: { type: String, default: "" },
+        phone: Number,
+        type: { type: String, default: "home" },
+        details: {
+          socName: { type: String, default: "" },
+          pincode: { type: Number, default: "" },
+          city: { type: String, default: "" },
+          state: { type: String, default: "" },
+          country: { type: String, default: "" },
+        },
+      },
+    ],
   },
   {
     timestamps: true,

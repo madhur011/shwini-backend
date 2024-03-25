@@ -1,39 +1,38 @@
 const { User } = require("../model/index.model");
-const { response } = require("../utils/response")
+const { response } = require("../utils/response");
 
 const jwt = require("jsonwebtoken"); // Conver to token admin details
 const bcrypt = require("bcryptjs"); // Password bcrypt and compar
 const { generateId, uniqueId } = require("../utils/function");
 
-
-
 exports.userGet = async (req, res) => {
   try {
-    const user = await User.find()
+    const user = await User.find();
     return response(res, 200, {
       message: "User Get Successfully !!",
       user,
     });
-
   } catch (error) {
     console.log(error);
     return response(res, 500, error);
   }
-
-}
+};
 
 exports.userLogin = async (req, res) => {
   console.log("req.body", req.body);
 
   try {
-    if (!req.body || (!req.body.loginType && req.body.loginType > 0) || !req.body.email) {
+    if (
+      !req.body ||
+      (!req.body.loginType && req.body.loginType > 0) ||
+      !req.body.email
+    ) {
       return response(res, 201, { message: "Oops ! Invalid details !" });
     }
     console.log("====");
-    const userVarify = await User.findOne({ email: req.body.email })
+    const userVarify = await User.findOne({ email: req.body.email });
 
     if (req.body.loginType == 0) {
-
       if (userVarify) {
         if (req.body.password) {
           if (userVarify.password != req.body.password) {
@@ -51,7 +50,7 @@ exports.userLogin = async (req, res) => {
           mobileNo: userVarify.mobileNo,
           customerId: userVarify.customerId,
           address: userVarify.address,
-        }
+        };
 
         const token = jwt.sign(payload, process.env.JWT_SECRET);
 
@@ -62,7 +61,6 @@ exports.userLogin = async (req, res) => {
       } else {
         return response(res, 201, { message: "Email Does Not Exist..!" });
       }
-
     } else if (req.body.loginType == 1) {
       if (userVarify) {
         return response(res, 201, { message: "Email Already Exist..!" });
@@ -93,7 +91,7 @@ exports.userLogin = async (req, res) => {
         mobileNo: user.mobileNo,
         customerId: user.customerId,
         address: [],
-      }
+      };
 
       const token = jwt.sign(payload, process.env.JWT_SECRET);
 
@@ -102,29 +100,24 @@ exports.userLogin = async (req, res) => {
         token,
       });
     }
-
-
   } catch (error) {
     console.log(error);
     return response(res, 500, error);
   }
 };
 
-
 exports.updateUser = async (req, res) => {
   try {
-
-    const { userId } = req.query
-    const { email, name, gender, mobileNo, password } = req.body
+    const { userId } = req.query;
+    const { email, name, gender, mobileNo, password } = req.body;
 
     console.log("req.query", req.query);
     console.log("req.body", req.body);
 
-
     if (!userId) {
       return response(res, 201, { message: "Oops! Invalid details" });
     }
-    const user = await User.findById(userId)
+    const user = await User.findById(userId);
     if (!user) {
       return response(res, 201, { message: "Oops! Invalid User Id!" });
     }
@@ -137,35 +130,40 @@ exports.updateUser = async (req, res) => {
     user.profileImage = req?.file?.path || user.profileImage;
     await user.save();
 
-
     return response(res, 200, {
       message: "User Updated successfully !!",
       user,
     });
-
-
   } catch (error) {
     console.log(error);
     return response(res, 500, error);
   }
-}
-
+};
 
 exports.addAddress = async (req, res) => {
   try {
     console.log("req.body", req.body);
 
-
-    const { userId } = req.query
-    const { fullName, phone, type, socName, pincode, city, state, country } = req.body
-    if (!userId || !fullName || !phone || !type || !socName || !pincode || !city || !state || !country) {
+    const { userId } = req.query;
+    const { fullName, phone, type, socName, pincode, city, state, country } =
+      req.body;
+    if (
+      !userId ||
+      !fullName ||
+      !phone ||
+      !type ||
+      !socName ||
+      !pincode ||
+      !city ||
+      !state ||
+      !country
+    ) {
       return response(res, 201, { message: "Oops! Invalid details" });
     }
-    const user = await User.findById(userId)
+    const user = await User.findById(userId);
     if (!user) {
       return response(res, 201, { message: "Oops! Invalid User Id!" });
     }
-
 
     const newAddress = {
       fullName,
@@ -179,7 +177,6 @@ exports.addAddress = async (req, res) => {
         country,
       },
     };
-
     // Push the new address object to the user's address array
     user.address.push(newAddress);
 
@@ -189,38 +186,37 @@ exports.addAddress = async (req, res) => {
       message: "Address added successfully !!",
       user,
     });
-
-
   } catch (error) {
     console.log(error);
     return response(res, 500, error);
   }
-}
+};
 
 exports.updateAddress = async (req, res) => {
   try {
     console.log("req.body", req.body);
     console.log("req.query", req.query);
 
-
-    const { userId, addressId } = req.query
-    const { fullName, phone, type, socName, pincode, city, state, country } = req.body
+    const { userId, addressId } = req.query;
+    const { fullName, phone, type, socName, pincode, city, state, country } =
+      req.body;
     if (!userId || !addressId) {
       return response(res, 201, { message: "Oops! Invalid details" });
     }
-    const user = await User.findById(userId)
+    const user = await User.findById(userId);
     if (!user) {
       return response(res, 201, { message: "Oops! Invalid User Id!" });
     }
 
     // Now, find the address within the user's addresses array
-    const userAddId = user.address.find(address => address._id.toString() === addressId);
+    const userAddId = user.address.find(
+      (address) => address._id.toString() === addressId
+    );
 
     if (!userAddId) {
       return response(res, 201, { message: "Oops! Invalid Address Id!" });
     }
     console.log("userAddId", userAddId);
-
 
     userAddId.fullName = fullName || userAddId.fullName;
     userAddId.phone = phone || userAddId.phone;
@@ -237,14 +233,11 @@ exports.updateAddress = async (req, res) => {
       message: "Address added successfully !!",
       user,
     });
-
-
   } catch (error) {
     console.log(error);
     return response(res, 500, error);
   }
-}
-
+};
 
 exports.deleteAddress = async (req, res) => {
   try {
@@ -252,7 +245,7 @@ exports.deleteAddress = async (req, res) => {
 
     const { userId, addressId } = req.query;
 
-    if (!userId || !addressId) {
+    if (!userId || !addressId || addressId == undefined) {
       return response(res, 400, { message: "Oops! Invalid details" });
     }
 
@@ -283,7 +276,6 @@ exports.deleteAddress = async (req, res) => {
   }
 };
 
-
 exports.userBlock = async (req, res) => {
   try {
     const { userId } = req.query;
@@ -302,28 +294,25 @@ exports.userBlock = async (req, res) => {
 
     return response(res, 200, {
       message: "User updated successfully!",
-      user
+      user,
     });
   } catch (error) {
     console.error(error);
     return response(res, 500, error);
   }
-}
-
+};
 
 exports.userProfile = async (req, res) => {
   try {
-    const { userId } = req.query
+    const { userId } = req.query;
 
-    const user = await User.findById(userId)
+    const user = await User.findById(userId);
     return response(res, 200, {
       message: "User Get Successfully !!",
       user,
     });
-
   } catch (error) {
     console.log(error);
     return response(res, 500, error);
   }
-
-}
+};

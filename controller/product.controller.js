@@ -579,7 +579,7 @@ exports.bestSellerProduct = async (req, res) => {
         $skip: 0
       },
       {
-        $limit: 6
+        $limit: 12
       },
       {
         $lookup: {

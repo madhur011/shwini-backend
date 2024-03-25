@@ -1,15 +1,14 @@
 const express = require("express");
 const route = express.Router();
 
-const OrderController = require("../controller/order.controller")
+const OrderController = require("../controller/order.controller");
 
-const checkAccessKey = require("../utils/checkAccess")
-
+const checkAccessKey = require("../utils/checkAccess");
 
 route.get("/orderAll", checkAccessKey(), OrderController.orderAll);
 route.get("/userOrder", checkAccessKey(), OrderController.userOrder);
 route.get("/singleOrder", checkAccessKey(), OrderController.singleOrder);
+route.post("/submitOrder", checkAccessKey(), OrderController.submitOrder);
 route.put("/updateStatus", checkAccessKey(), OrderController.updateStatus);
 
-
-module.exports = route
+module.exports = route;

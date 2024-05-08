@@ -8,6 +8,7 @@ const adminSchema = new mongoose.Schema(
     image: String,
     role: { type: Array },
     isActive: { type: Boolean, default: true },
+    flag: { type: Boolean, default: true },
   },
   {
     timestamps: true,

@@ -20,6 +20,7 @@ exports.updateSetting = async (req, res) => {
       address,
       shopTime,
       deliveryDay,
+      menufacture,
       returnDay,
       razorKey,
       razorApiSecret,

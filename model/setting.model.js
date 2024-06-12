@@ -16,6 +16,7 @@ const settingSchema = new mongoose.Schema(
     email: { type: String, default: "" },
     address: { type: String, default: "" },
     shopTime: { type: String, default: "" },
+    menufacture: { type: String, default: "" },
     //handle Details Wise
     deliveryDay: { type: String, default: "" },
     returnDay: { type: String, default: "" },

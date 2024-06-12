@@ -43,6 +43,7 @@ exports.updateSetting = async (req, res) => {
     setting.email = email || setting.email;
     setting.address = address || setting.address;
     setting.shopTime = shopTime || setting.shopTime;
+    setting.menufacture = menufacture || setting.menufacture;
 
     //handle Details Wise
     setting.deliveryDay = deliveryDay || setting.deliveryDay;

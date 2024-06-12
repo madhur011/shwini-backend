@@ -2,7 +2,6 @@ const express = require("express");
 const route = express.Router();
 const app = express();
 
-
 const admin = require("./admin.route");
 route.use("/admin", admin);
 
@@ -42,6 +41,9 @@ route.use("/delivery", delivery);
 const policy = require("./policy.route");
 route.use("/policy", policy);
 
+const productCare = require("./productCare.route");
+route.use("/productCare", productCare);
+
 const rating = require("./rating.route");
 route.use("/rating", rating);
 
@@ -51,6 +53,4 @@ route.use("/dashboard", dashboard);
 const setting = require("./setting.route");
 route.use("/setting", setting);
 
-
-
-module.exports = route
+module.exports = route;

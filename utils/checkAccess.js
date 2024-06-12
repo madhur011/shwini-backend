@@ -2,8 +2,6 @@ const { response } = require("./response");
 
 module.exports = () => {
   return (req, res, next) => {
-    console.log("req.header", req.headers.key);
-
     const token = req.body.key || req.query.key || req.headers.key;
     if (token) {
       if (token == process.env.SECRET_KEY) {

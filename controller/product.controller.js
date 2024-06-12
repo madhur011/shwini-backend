@@ -38,11 +38,17 @@ exports.createProduct = async (req, res) => {
       !req.body.craft ||
       !req.body.work ||
       !req.body.size ||
+      !req.body.patten ||
       !req.body.color ||
       !req.body.sizeB ||
       !req.body.colorB ||
-      !req.body.colorB ||
-      !productImages
+      !req.body.sku ||
+      !req.body.purity ||
+      !productImages ||
+      !req.body.length ||
+      !req.body.breath ||
+      !req.body.height ||
+      !req.body.weight
     ) {
       deleteFiles(req.files);
       return response(res, 201, { message: "Oops ! Invalid details !" });
@@ -55,13 +61,20 @@ exports.createProduct = async (req, res) => {
       shippingCharge,
       craft,
       work,
+      size,
+      patten,
       colorB,
       sizeB,
       febric,
       color,
-      size,
       categoryId,
       productCode,
+      sku,
+      purity,
+      length,
+      breath,
+      height,
+      weight,
     } = req.body;
     const totalColor = color.length;
     // const productCode = uniqueId(8)
@@ -78,16 +91,23 @@ exports.createProduct = async (req, res) => {
         shippingCharge,
         craft,
         work,
+        stock: req.body.stock[i],
+        color: color[i],
+        size: size[i],
         colorB: colorB[i],
         sizeB: sizeB[i],
         febric,
         discount: discount.toFixed(),
-        stock: req.body.stock[i],
-        color: color[i],
-        size: size[i],
+        patten,
         productCode,
         categoryId,
+        sku,
+        purity,
         productImage: productImages[i].map((image) => image.path),
+        length,
+        breath,
+        height,
+        weight,
       };
       products.push(product);
     }
@@ -152,6 +172,9 @@ exports.getProduct = async (req, res) => {
       "price",
       "craeft",
       "work",
+      "patten",
+      "purity",
+      "sku",
       "oldPrice",
       "discount",
       "shippingCharge",
@@ -200,6 +223,9 @@ exports.getProduct = async (req, res) => {
           discount: { $first: "$discount" },
           shippingCharge: { $first: "$shippingCharge" },
           craft: { $first: "$craft" },
+          patten: { $first: "$patten" },
+          purity: { $first: "$purity" },
+          sku: { $first: "$sku" },
           work: { $first: "$work" },
           colorB: { $first: "$colorB" },
           sizeB: { $first: "$sizeB" },
@@ -213,6 +239,10 @@ exports.getProduct = async (req, res) => {
           newCollection: { $first: "$newCollection" },
           weddingCollection: { $first: "$weddingCollection" },
           createdAt: { $first: "$createdAt" },
+          length: { $first: "$length" },
+          breadth: { $first: "$breadth" },
+          height: { $first: "$height" },
+          weight: { $first: "$weight" },
         },
       },
       {
@@ -251,6 +281,9 @@ exports.getProduct = async (req, res) => {
           febric: 1,
           craft: 1,
           work: 1,
+          patten: 1,
+          purity: 1,
+          sku: 1,
           colorB: 1,
           sizeB: 1,
           size: 1,
@@ -262,6 +295,10 @@ exports.getProduct = async (req, res) => {
           newCollection: 1,
           weddingCollection: 1,
           createdAt: 1,
+          length: 1,
+          breadth: 1,
+          height: 1,
+          weight: 1,
         },
       },
       {
@@ -338,11 +375,18 @@ exports.editProductDetails = async (req, res) => {
       oldPrice: req.body.oldPrice || productCode.oldPrice,
       craft: req.body.craft || productCode.craft,
       work: req.body.work || productCode.work,
+      patten: req.body.patten || productCode.patten,
+      purity: req.body.purity || productCode.purity,
+      sku: req.body.sku || productCode.sku,
       discount: discount.toFixed(),
       shippingCharge: req.body.shippingCharge || productCode.shippingCharge,
       productCode: productCode.productCode,
       categoryId: categoryName.categoryId._id,
       categoryName: categoryName.categoryId.categoryName,
+      length: req.body.length || productCode.length,
+      breadth: req.body.breadth || productCode.breadth,
+      height: req.body.height || productCode.height,
+      weight: req.body.weight || productCode.weight,
     };
 
     await Product.updateMany(
@@ -1063,6 +1107,9 @@ exports.categoryWiseProduct = async (req, res) => {
           discount: { $first: "$discount" },
           craft: { $first: "$craft" },
           work: { $first: "$work" },
+          patten: { $first: "$patten" },
+          purity: { $first: "$purity" },
+          sku: { $first: "$sku" },
           shippingCharge: { $first: "$shippingCharge" },
           color: { $push: "$color" },
           febric: { $first: "$febric" },
@@ -1071,6 +1118,10 @@ exports.categoryWiseProduct = async (req, res) => {
           categoryId: { $first: "$categoryId" },
           productImage: { $push: { $first: "$productImage" } },
           createdAt: { $first: "$createdAt" },
+          length: { $first: "$length" },
+          breadth: { $first: "$breadth" },
+          height: { $first: "$height" },
+          weight: { $first: "$weight" },
           wishlist: {
             $push: {
               $cond: {
@@ -1199,6 +1250,9 @@ exports.colletionProduct = async (req, res) => {
           discount: { $first: "$discount" },
           craft: { $first: "$craft" },
           work: { $first: "$work" },
+          patten: { $first: "$patten" },
+          purity: { $first: "$purity" },
+          sku: { $first: "$sku" },
           outOfStock: { $first: "$outOfStock" },
           shippingCharge: { $first: "$shippingCharge" },
           color: { $push: "$color" },
@@ -1207,6 +1261,10 @@ exports.colletionProduct = async (req, res) => {
           categoryId: { $first: "$categoryId" },
           productImage: { $push: { $first: "$productImage" } },
           createdAt: { $first: "$createdAt" },
+          length: { $first: "$length" },
+          breadth: { $first: "$breadth" },
+          height: { $first: "$height" },
+          weight: { $first: "$weight" },
           wishlist: {
             $push: {
               $cond: {
@@ -1307,6 +1365,9 @@ exports.budgetPoduct = async (req, res) => {
           discount: { $first: "$discount" },
           craft: { $first: "$craft" },
           work: { $first: "$work" },
+          patten: { $first: "$patten" },
+          purity: { $first: "$purity" },
+          sku: { $first: "$sku" },
           outOfStock: { $first: "$outOfStock" },
           shippingCharge: { $first: "$shippingCharge" },
           color: { $push: "$color" },
@@ -1315,6 +1376,10 @@ exports.budgetPoduct = async (req, res) => {
           categoryId: { $first: "$categoryId" },
           productImage: { $push: { $first: "$productImage" } },
           createdAt: { $first: "$createdAt" },
+          length: { $first: "$length" },
+          breadth: { $first: "$breadth" },
+          height: { $first: "$height" },
+          weight: { $first: "$weight" },
           wishlist: {
             $push: {
               $cond: {
@@ -1465,6 +1530,9 @@ exports.getAttibuteWiseproduct = async (req, res) => {
           discount: { $first: "$discount" },
           craft: { $first: "$craft" },
           work: { $first: "$work" },
+          patten: { $first: "$patten" },
+          purity: { $first: "$purity" },
+          sku: { $first: "$sku" },
           shippingCharge: { $first: "$shippingCharge" },
           color: { $push: "$color" },
           febric: { $first: "$febric" },
@@ -1472,6 +1540,10 @@ exports.getAttibuteWiseproduct = async (req, res) => {
           categoryId: { $first: "$categoryId" },
           productImage: { $push: { $first: "$productImage" } },
           createdAt: { $first: "$createdAt" },
+          length: { $first: "$length" },
+          breadth: { $first: "$breadth" },
+          height: { $first: "$height" },
+          weight: { $first: "$weight" },
           wishlist: {
             $push: {
               $cond: {

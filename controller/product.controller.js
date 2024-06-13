@@ -94,6 +94,7 @@ exports.createProduct = async (req, res) => {
         stock: req.body.stock[i],
         color: color[i],
         size: size[i],
+        sku: sku[i],
         colorB: colorB[i],
         sizeB: sizeB[i],
         febric,
@@ -101,7 +102,6 @@ exports.createProduct = async (req, res) => {
         patten,
         productCode,
         categoryId,
-        sku,
         purity,
         productImage: productImages[i].map((image) => image.path),
         length,
@@ -377,7 +377,6 @@ exports.editProductDetails = async (req, res) => {
       work: req.body.work || productCode.work,
       patten: req.body.patten || productCode.patten,
       purity: req.body.purity || productCode.purity,
-      sku: req.body.sku || productCode.sku,
       discount: discount.toFixed(),
       shippingCharge: req.body.shippingCharge || productCode.shippingCharge,
       productCode: productCode.productCode,
@@ -436,6 +435,7 @@ exports.editProductColor = async (req, res) => {
     product.size = req.body.size || product.size;
     product.stock = req.body.stock || product.stock;
     product.sizeB = req.body.sizeB || product.sizeB;
+    product.sku = req.body.sku || product.sku;
     console.log("-----");
     const productImageArray = [];
     if (req.files.length > 0) {

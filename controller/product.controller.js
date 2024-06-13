@@ -46,7 +46,7 @@ exports.createProduct = async (req, res) => {
       !req.body.purity ||
       !productImages ||
       !req.body.length ||
-      !req.body.breath ||
+      !req.body.breadth ||
       !req.body.height ||
       !req.body.weight
     ) {
@@ -72,7 +72,7 @@ exports.createProduct = async (req, res) => {
       sku,
       purity,
       length,
-      breath,
+      breadth,
       height,
       weight,
     } = req.body;
@@ -105,7 +105,7 @@ exports.createProduct = async (req, res) => {
         purity,
         productImage: productImages[i].map((image) => image.path),
         length,
-        breath,
+        breadth,
         height,
         weight,
       };

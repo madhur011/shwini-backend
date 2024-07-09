@@ -1,12 +1,13 @@
 const axios = require("axios");
+const { response } = require("../utils/response");
+const { User } = require("../model/index.model");
 require("dotenv").config({ path: ".env" });
-const { Order, userInfo } = require("../models/index.model");
 
-// Token Generate
 exports.authenticateShiprocket = async () => {
   try {
+    console.log("Shiprocket response", process.env.SHIPROCKET_EMAIL);
     const response = await axios.post(
-      `${process.env.SHIPROCKET_BASE_URL}/external/auth/login`,
+      `${process.env.SHIPROCKET_BASE_URL}external/auth/login`,
       {
         email: process.env.SHIPROCKET_EMAIL,
         password: process.env.SHIPROCKET_PASSWORD,
@@ -15,16 +16,16 @@ exports.authenticateShiprocket = async () => {
 
     return response.data.token;
   } catch (error) {
-    console.error("Error authenticating with Shiprocket:", error.message);
+    // console.error("Error authenticating with Shiprocket:", error.message);
     throw error;
   }
 };
 
-// Create Order In Partner
 exports.createShiprocketOrder = async (shiprocketToken, order) => {
+  console.log("order", order);
   try {
     const response = await axios.post(
-      `${process.env.SHIPROCKET_BASE_URL}/external/orders/create/adhoc`,
+      `${process.env.SHIPROCKET_BASE_URL}external/orders/create/adhoc`,
       order,
       {
         headers: {
@@ -36,30 +37,14 @@ exports.createShiprocketOrder = async (shiprocketToken, order) => {
     console.log("Shiprocket response", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error creating Shiprocket order:", error.message);
+    // console.error("Error creating Shiprocket order:", error.message);
     throw error;
   }
 };
 
-// Order Get By ID (Single Order)
-exports.getShiprocketOrderById = async (shiprocketToken, orderId) => {
-  const response = await axios.get(
-    `${process.env.SHIPROCKET_BASE_URL}/external/orders/get?order_id=${orderId}`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${shiprocketToken}`,
-      },
-    }
-  );
-  console.log("Shiprocket response", response.data);
-  return response.data;
-};
-
-// Order Get ALL
 exports.getShiprocketOrders = async (shiprocketToken) => {
   const response = await axios.get(
-    `${process.env.SHIPROCKET_BASE_URL}/external/orders/list`,
+    `${process.env.SHIPROCKET_BASE_URL}external/orders/list`,
     {
       headers: {
         "Content-Type": "application/json",
@@ -67,31 +52,14 @@ exports.getShiprocketOrders = async (shiprocketToken) => {
       },
     }
   );
-  console.log("Shiprocket response", response.data);
   return response.data;
 };
 
-// Order Change
-exports.updateShiprocketOrder = async (shiprocketToken, orderId) => {
-  const response = await axios.get(
-    `${process.env.SHIPROCKET_BASE_URL}/external/orders/update?order_id=${orderId}`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${shiprocketToken}`,
-      },
-    }
-  );
-  console.log("Shiprocket response", response.data);
-  return response.data;
-};
-
-// Order Cancel
 exports.cancelShiprocketOrders = async (shiprocketToken, orderId) => {
   try {
     console.log("ids", orderId);
     const response = await axios.post(
-      `${process.env.SHIPROCKET_BASE_URL}/external/orders/cancel`,
+      `${process.env.SHIPROCKET_BASE_URL}external/orders/cancel`,
       { ids: [orderId] },
       {
         headers: {
@@ -111,7 +79,6 @@ exports.cancelShiprocketOrders = async (shiprocketToken, orderId) => {
   }
 };
 
-// After Order Change Address
 exports.updateCustomerDeliveryAddress = async (
   shiprocketToken,
   orderId,
@@ -119,7 +86,7 @@ exports.updateCustomerDeliveryAddress = async (
   userId
 ) => {
   try {
-    const user = await userInfo.findById(userId);
+    const user = await User.findById(userId);
     if (!user) {
       throw new Error("User not found");
     }
@@ -139,7 +106,7 @@ exports.updateCustomerDeliveryAddress = async (
     console.log("Payload to Shiprocket:", payload);
 
     const response = await axios.post(
-      `${process.env.SHIPROCKET_BASE_URL}/external/orders/address/update`,
+      `${process.env.SHIPROCKET_BASE_URL}external/orders/address/update`,
       payload,
       {
         headers: {
@@ -165,7 +132,6 @@ exports.updateCustomerDeliveryAddress = async (
   }
 };
 
-// Find Delivery Location
 exports.getLocalityDetails = async (pinCode) => {
   try {
     const response = await axios.get(
@@ -178,11 +144,10 @@ exports.getLocalityDetails = async (pinCode) => {
   }
 };
 
-// Label Generate For Print
 exports.GenerateLabel = async (shiprocketToken, shipmentId) => {
   try {
     const response = await axios.post(
-      `${process.env.SHIPROCKET_BASE_URL}/external/courier/generate/label`,
+      `${process.env.SHIPROCKET_BASE_URL}external/courier/generate/label`,
       {
         shipment_id: [shipmentId],
       },
@@ -205,13 +170,12 @@ exports.GenerateLabel = async (shiprocketToken, shipmentId) => {
   }
 };
 
-// Show Invoice For Print
-exports.getInvoice = async (shiprocketToken, ids) => {
+exports.getInvoice = async (shiprocketToken, id) => {
   try {
-    console.log("Sending request to Shiprocket with token:", shiprocketToken);
+    console.log("Sending request to Shiprocket with token : ", shiprocketToken);
     const response = await axios.post(
-      `${process.env.SHIPROCKET_BASE_URL}/external/orders/print/invoice`,
-      { ids: [ids] },
+      `${process.env.SHIPROCKET_BASE_URL}external/orders/print/invoice`,
+      { ids: [id] },
       {
         headers: {
           "Content-Type": "application/json",
@@ -232,13 +196,12 @@ exports.getInvoice = async (shiprocketToken, ids) => {
   }
 };
 
-// Show Menifest For Print
 exports.generateMenifest = async (shiprocketToken, orderId) => {
   try {
     const response = await axios.post(
-      `${process.env.SHIPROCKET_BASE_URL}/external/orders/print/manifes`,
+      `https://apiv2.shiprocket.in/v1external/manifests/print`,
       {
-        ids: shipmentIds,
+        shipment_id: [orderId],
       },
       {
         headers: {
@@ -259,11 +222,10 @@ exports.generateMenifest = async (shiprocketToken, orderId) => {
   }
 };
 
-// Show Pikup Address
 exports.getPickUpAdress = async (shiprocketToken) => {
   try {
     const response = await axios.get(
-      `${process.env.SHIPROCKET_BASE_URL}/external/settings/company/pickup`,
+      `${process.env.SHIPROCKET_BASE_URL}external/settings/company/pickup`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -282,55 +244,21 @@ exports.getPickUpAdress = async (shiprocketToken) => {
   }
 };
 
-// Show Tracking
-exports.getTrackingDetails = async (req, res) => {
-  try {
-    const { shipmentId } = req.query;
-
-    console.log(`Fetching token for Shiprocket...`);
-    const shiprocketToken = await authenticateShiprocket();
-    console.log(`Token fetched: ${shiprocketToken}`);
-
-    console.log(`Fetching shipment details for Shipment ID: ${shipmentId}`);
-
-    const shipmentDetailsResponse = await getShipmentsById(
-      shiprocketToken,
-      shipmentId
-    );
-    console.log(
-      `Shipment details response:`,
-      shipmentDetailsResponse.shipment_track
-    );
-
-    const awbNumber = shipmentDetailsResponse.data.awb;
-    console.log(`AWB Number extracted: ${awbNumber}`);
-
-    console.log(`Fetching tracking details for AWB Number: ${awbNumber}`);
-    const trackingDetailsResponse = await getTrackingDetail(
-      shiprocketToken,
-      awbNumber
-    );
-    console.log(`Tracking details response:`, trackingDetailsResponse);
-
-    res.status(200).json({
-      message: "Tracking details fetched successfully",
-      response: trackingDetailsResponse,
-    });
-  } catch (error) {
-    console.error("Error fetching tracking details:", error);
-    res.status(500).json({
-      error: "Error fetching tracking details",
-      message: error.message,
-    });
-  }
-};
-
-// Find AWS Token Number
 exports.getShipmentsById = async (shiprocketToken, shipmentId) => {
   try {
-    console.log("Sending request to Shiprocket with token:", shipmentId);
+    if (!shiprocketToken) {
+      throw new Error("Missing Shiprocket token");
+    }
+
+    if (!shipmentId) {
+      throw new Error("Missing shipment ID");
+    }
+
+    console.log("Sending request to Shiprocket with token:", shiprocketToken);
+    console.log("Fetching shipment with ID:", shipmentId);
+
     const response = await axios.get(
-      `https://apiv2.shiprocket.in/v1/external/shipments/${shipmentId}`,
+      `https://apiv2.shiprocket.in/v1external/shipments/${shipmentId}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -338,7 +266,38 @@ exports.getShipmentsById = async (shiprocketToken, shipmentId) => {
         },
       }
     );
-    console.log("Shiprocket response", response.data);
+
+    if (!response.data || Object.keys(response.data).length === 0) {
+      throw new Error("No data found in Shiprocket response");
+    }
+
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      console.error(
+        "Error fetching shipment details:",
+        error.response.status,
+        error.response.statusText
+      );
+      console.error("Response headers:", error.response.headers);
+      console.error("Response data:", error.response.data);
+    } else {
+      console.error("Error fetching shipment details:", error.message);
+    }
+    throw error;
+  }
+};
+exports.getShipments = async (shiprocketToken) => {
+  try {
+    const response = await axios.get(
+      `https://apiv2.shiprocket.in/v1external/shipments`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${shiprocketToken}`,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     console.error(
@@ -349,12 +308,11 @@ exports.getShipmentsById = async (shiprocketToken, shipmentId) => {
   }
 };
 
-// Show Tracking Data
-exports.getTrackingDetail = async (shiprocketToken, awbNumber) => {
+exports.getTrackingDetails = async (shiprocketToken, awbNumber) => {
   try {
     console.log("awbNumber", awbNumber);
     const response = await axios.get(
-      `https://apiv2.shiprocket.in/v1/external/courier/track/awb/${awbNumber}`,
+      `https://apiv2.shiprocket.in/v1external/courier/track/awb/${awbNumber}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -367,6 +325,32 @@ exports.getTrackingDetail = async (shiprocketToken, awbNumber) => {
   } catch (error) {
     console.error(
       "Error fetching tracking details:",
+      error.response ? error.response.data : error.message
+    );
+    throw error;
+  }
+};
+
+exports.cancelShipment = async (shiprocketToken, awbNumber) => {
+  try {
+    console.log("Sending request to Shiprocket with token:", awbNumber);
+    const response = await axios.delete(
+      `https://apiv2.shiprocket.in/v1external/orders/cancel/shipment/awbs`,
+      {
+        awbs: [awbNumber],
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${shiprocketToken}`,
+        },
+      }
+    );
+    console.log("Shiprocket response", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching shipment details:",
       error.response ? error.response.data : error.message
     );
     throw error;

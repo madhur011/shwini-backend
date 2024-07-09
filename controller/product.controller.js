@@ -793,7 +793,7 @@ exports.showSingleProduct = async (req, res) => {
           categoryId: { $first: "$categoryId" },
           productImage: { $first: "$productImage" },
           createdAt: { $first: "$createdAt" },
-          lenght: { $first: "$lenght" },
+          length: { $first: "$length" },
           breadth: { $first: "$breadth" },
           height: { $first: "$height" },
           weight: { $first: "$weight" },

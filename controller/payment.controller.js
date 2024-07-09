@@ -45,8 +45,6 @@ exports.checkout = async (req, res) => {
 };
 
 exports.paymentVerification = async (req, res) => {
-  console.log("req.body", req.body);
-  console.log("req.body", req.body.product.allProduct);
   const {
     razorpay_payment_id,
     razorpay_order_id,

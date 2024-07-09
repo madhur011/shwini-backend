@@ -7,9 +7,13 @@ const {
   Order,
   Cart,
 } = require("../model/index.model");
-const { uniqueId } = require("../utils/function");
+const { uniqueId, formatDate } = require("../utils/function");
 const { response } = require("../utils/response");
 const crypto = require("crypto");
+const {
+  authenticateShiprocket,
+  createShiprocketOrder,
+} = require("../utils/shiprocket");
 
 //after payment this function call in payment controller other wise COD method
 exports.submitOrder = async (req, res) => {
@@ -31,6 +35,14 @@ exports.submitOrder = async (req, res) => {
     const orders = [];
     const cartId = [];
 
+    const shiprocketToken = await authenticateShiprocket();
+    if (!shiprocketToken) {
+      return response(res, 201, {
+        status: false,
+        message: "Order is not submited",
+      });
+    }
+
     for (let i = 0; i < allOrders; i++) {
       const order = {
         orderId: uniqueId(20),
@@ -48,15 +60,68 @@ exports.submitOrder = async (req, res) => {
           details: `${address.details.socName}, ${address.details.city} - ${address.details.pincode}, ${address.details.state}, ${address.details.country}`,
         },
       };
+      console.log("product.allProduct[i]", product.allProduct[i]);
+      const shiprocketOrder = {
+        order_id: order.orderId.toString(),
+        order_date: formatDate(new Date()),
+        pickup_location: process.env.SHIPROCKET_PICKUP_LOCATION,
+        billing_customer_name: address.fullName,
+        billing_last_name: "-",
+        billing_address: address.details.socName,
+        billing_city: address.details.city,
+        billing_pincode: address.details.pincode,
+        billing_state: address.details.state,
+        billing_country: address.details.country,
+        billing_email: user.email,
+        billing_phone: address.phone,
+        shipping_is_billing: true,
+        order_items: [
+          {
+            name: product.allProduct[i].title,
+            sku: product.allProduct[i].sku,
+            units: product.allProduct[i].productCount,
+            selling_price: product.allProduct[i].price,
+            discount: "",
+            tax: "",
+            hsn: "",
+          },
+        ],
+        payment_method: isCod ? "COD" : "Prepaid",
+        sub_total:
+          product.allProduct[i].price * product.allProduct[i].productCount,
+        length: product.allProduct[i].length,
+        breadth: product.allProduct[i].breadth,
+        height: product.allProduct[i].height,
+        weight:
+          product.allProduct[i].weight * product.allProduct[i].productCount,
+      };
+
+      // Normal Order
       orders.push(order);
       cartId.push(product.allProduct[i]._id);
+
+      const shiprocketResponse = await createShiprocketOrder(
+        shiprocketToken,
+        shiprocketOrder
+      );
+      console.log("Shiprocket order response:", shiprocketResponse);
+      if (shiprocketResponse.status === "ERROR") {
+        console.error(
+          "Shiprocket order creation error:",
+          shiprocketResponse.message
+        );
+        return response(res, 500, {
+          status: false,
+          message: shiprocketResponse.message,
+        });
+      }
     }
 
     await Order.insertMany(orders);
 
     const filter = { _id: { $in: cartId } };
     await Cart.deleteMany(filter);
-    
+
     if (isCod) {
       return response(res, 200, {
         message: "Order Submit Successfully !!",
@@ -99,6 +164,7 @@ exports.singleOrder = async (req, res) => {
     return response(res, 500, error);
   }
 };
+
 exports.orderAll = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 0;
@@ -213,6 +279,7 @@ exports.orderAll = async (req, res) => {
     return response(res, 500, error);
   }
 };
+
 exports.userOrder = async (req, res) => {
   try {
     const { userId } = req.query;

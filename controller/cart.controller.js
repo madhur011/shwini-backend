@@ -1,25 +1,23 @@
 const { Wishlist, User, Product, Cart } = require("../model/index.model");
 const { deleteFile, deleteFilePath } = require("../utils/deleteFile");
-const { response } = require("../utils/response")
-
-
+const { response } = require("../utils/response");
 
 exports.getUserCart = async (req, res) => {
   try {
-
-    const { userId } = req.query
+    const { userId } = req.query;
     const user = await User.findById(userId);
     if (!user || !userId) {
-      return response(res, 201, { message: "Oops! Invalid details or product Id!" });
+      return response(res, 201, {
+        message: "Oops! Invalid details or product Id!",
+      });
     }
-
 
     const aggregationPipeline = [
       {
-        $match: { $and: [{ userId: user?._id }, { saveLater: false }] }
+        $match: { $and: [{ userId: user?._id }, { saveLater: false }] },
       },
       {
-        $sort: { createdAt: -1 }
+        $sort: { createdAt: -1 },
       },
       {
         $lookup: {
@@ -28,8 +26,8 @@ exports.getUserCart = async (req, res) => {
           pipeline: [
             {
               $match: {
-                $expr: { $eq: ["$_id", "$$productId"] }
-              }
+                $expr: { $eq: ["$_id", "$$productId"] },
+              },
             },
             {
               $project: {
@@ -42,7 +40,12 @@ exports.getUserCart = async (req, res) => {
                 // total price
                 finalPrice: { $multiply: ["$price", "$$productCount"] },
                 finalOldPrice: { $multiply: ["$oldPrice", "$$productCount"] },
-                finalSavePrice: { $subtract: [{ $multiply: ["$oldPrice", "$$productCount"] }, { $multiply: ["$price", "$$productCount"] }] },
+                finalSavePrice: {
+                  $subtract: [
+                    { $multiply: ["$oldPrice", "$$productCount"] },
+                    { $multiply: ["$price", "$$productCount"] },
+                  ],
+                },
                 discount: 1,
                 shippingCharge: 1,
                 stock: 1,
@@ -51,12 +54,17 @@ exports.getUserCart = async (req, res) => {
                 productImage: 1,
                 outOfStock: 1,
                 newCollection: 1,
-                weddingCollection: 1
-              }
-            }
+                weddingCollection: 1,
+                length: 1,
+                weight: 1,
+                breadth: 1,
+                height: 1,
+                sku: 1,
+              },
+            },
           ],
-          as: "productDetails"
-        }
+          as: "productDetails",
+        },
       },
       {
         $unwind: {
@@ -83,9 +91,14 @@ exports.getUserCart = async (req, res) => {
           finalPrice: "$productDetails.finalPrice",
           finalOldPrice: "$productDetails.finalOldPrice",
           finalSavePrice: "$productDetails.finalSavePrice",
+          length: "$productDetails.length",
+          weight: "$productDetails.weight",
+          breadth: "$productDetails.breadth",
+          height: "$productDetails.height",
+          sku: "$productDetails.sku",
           createdAt: 1,
           updatedAt: 1,
-        }
+        },
       },
       {
         $group: {
@@ -97,11 +110,10 @@ exports.getUserCart = async (req, res) => {
           finalOldPrice: { $sum: "$finalOldPrice" },
           finalSavePrice: { $sum: "$finalSavePrice" },
           totalProduct: { $sum: 1 },
-          allProduct: { $push: "$$ROOT" }
-        }
+          allProduct: { $push: "$$ROOT" },
+        },
       },
-    ]
-
+    ];
 
     const cart = await Cart.aggregate(aggregationPipeline);
 
@@ -113,20 +125,18 @@ exports.getUserCart = async (req, res) => {
       finalOldPrice: 0,
       finalSavePrice: 0,
       totalProduct: 0,
-      allProduct: []
-    }
-
+      allProduct: [],
+    };
 
     return response(res, 200, {
       message: "cart Get Successfully !!",
       cart: cart[0] || noCart,
     });
-
   } catch (error) {
     console.log(error);
     return response(res, 500, error);
   }
-}
+};
 
 exports.addToCart = async (req, res) => {
   console.log("req.body", req.body);
@@ -134,39 +144,37 @@ exports.addToCart = async (req, res) => {
   const { userId, productId, productCount } = req.body;
 
   try {
-
     if (!userId || !productId || !productCount) {
       return response(res, 201, { message: "Oops ! Invalid details !" });
     }
-    const user = await User.findById(userId)
+    const user = await User.findById(userId);
     if (!user) {
       return response(res, 201, { message: "Oops ! User Done not Exist !" });
     }
 
-    const product = await Product.findById(productId)
+    const product = await Product.findById(productId);
     if (!product) {
       return response(res, 201, { message: "Oops ! Product Done not Exist !" });
     }
 
-    const oldCart = await Cart.findOne({ userId, productId })
-
+    const oldCart = await Cart.findOne({ userId, productId });
 
     if (oldCart) {
-      oldCart.productCount += parseInt(productCount)
-      await oldCart.save()
+      oldCart.productCount += parseInt(productCount);
+      await oldCart.save();
 
       return response(res, 200, {
         message: "Add Cart Successfully !!",
-        cart: oldCart
+        cart: oldCart,
       });
     }
 
-    const cart = await new Cart()
-    cart.userId = user._id
-    cart.productId = product._id
-    cart.productCode = product.productCode
-    cart.productCount = parseInt(productCount)
-    await cart.save()
+    const cart = await new Cart();
+    cart.userId = user._id;
+    cart.productId = product._id;
+    cart.productCode = product.productCode;
+    cart.productCount = parseInt(productCount);
+    await cart.save();
 
     const latestCart = {
       ...cart._doc,
@@ -177,25 +185,23 @@ exports.addToCart = async (req, res) => {
       shippingCharge: product.shippingCharge,
       productImage: product.productImage,
       outOfStock: product.outOfStock,
-      savePrice: (product.oldPrice - product.price),
-      finalPrice: (product.price * cart.productCount),
-      finalOldPrice: (product.oldPrice * cart.productCount),
-      finalSavePrice: ((product.oldPrice * cart.productCount) - (product.price * cart.productCount))
-    }
+      savePrice: product.oldPrice - product.price,
+      finalPrice: product.price * cart.productCount,
+      finalOldPrice: product.oldPrice * cart.productCount,
+      finalSavePrice:
+        product.oldPrice * cart.productCount -
+        product.price * cart.productCount,
+    };
 
     return response(res, 200, {
       message: "Add Cart Successfully !!",
-      cart: latestCart
+      cart: latestCart,
     });
-
-
-
   } catch (error) {
     console.log(error);
     return response(res, 500, error);
   }
-
-}
+};
 
 exports.addRemoveCartProduct = async (req, res) => {
   console.log("req.body", req.body);
@@ -220,7 +226,7 @@ exports.addRemoveCartProduct = async (req, res) => {
       ...cart._doc,
       finalPrice: price * cart.productCount,
       finalOldPrice: oldPrice * cart.productCount,
-      finalSavePrice: ((oldPrice * cart.productCount) - (price * cart.productCount)),
+      finalSavePrice: oldPrice * cart.productCount - price * cart.productCount,
     };
 
     console.log("cart", latestCart);
@@ -229,16 +235,11 @@ exports.addRemoveCartProduct = async (req, res) => {
       message: "Add Cart Successfully !!",
       cart: latestCart,
     });
-
-
-
   } catch (error) {
     console.log(error);
     return response(res, 500, error);
   }
-
-}
-
+};
 
 exports.deleteCart = async (req, res) => {
   console.log("req.query", req.query);
@@ -246,16 +247,14 @@ exports.deleteCart = async (req, res) => {
     if (!req.query.cartId) {
       return response(res, 201, { message: "Oops ! Invalid details !" });
     }
-    const cart = await Cart.findById(req.query.cartId)
+    const cart = await Cart.findById(req.query.cartId);
     if (!cart) {
       return response(res, 201, { message: "Oops ! Invalid Cart Id !" });
     }
-    await cart.deleteOne()
+    await cart.deleteOne();
     return response(res, 200, { message: "Cart Delete Successfully !!" });
-
   } catch (error) {
     console.log(error);
     return response(res, 500, error);
   }
-
-}
+};

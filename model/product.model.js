@@ -11,6 +11,7 @@ const productSchema = new mongoose.Schema(
     craft: { type: String, default: "" },
     work: { type: String, default: "" },
     size: { type: String, default: "" },
+    sku: { type: String, default: "" },
     patten: { type: String, default: "" },
     color: { type: String, default: "" },
     febric: { type: String, default: "" },
@@ -22,7 +23,6 @@ const productSchema = new mongoose.Schema(
     outOfStock: { type: Boolean, default: false },
     newCollection: { type: Boolean, default: true },
     weddingCollection: { type: Boolean, default: false },
-    sku: { type: String, default: "" },
     purity: { type: String, default: "" },
     // For Delivery Partner
     length: { type: Number, default: 0 },

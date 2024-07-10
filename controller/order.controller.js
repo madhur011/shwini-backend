@@ -91,9 +91,9 @@ exports.submitOrder = async (req, res) => {
           product.allProduct[i].price * product.allProduct[i].productCount,
         length: product.allProduct[i].length,
         breadth: product.allProduct[i].breadth,
-        height: product.allProduct[i].height,
-        weight:
-          product.allProduct[i].weight * product.allProduct[i].productCount,
+        height:
+          product.allProduct[i].height * product.allProduct[i].productCount,
+        weight: product.allProduct[i].weight,
       };
 
       // Normal Order

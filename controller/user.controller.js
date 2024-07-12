@@ -227,8 +227,10 @@ exports.updateAddress = async (req, res) => {
     userAddId.details.state = state || userAddId.details.state;
     userAddId.details.country = country || userAddId.details.country;
 
+    console.log('userAddId', userAddId)
+
     // Save the user document with the updated address array
-    await userAddId.save();
+    await user.save();
     return response(res, 200, {
       message: "Address added successfully !!",
       user,

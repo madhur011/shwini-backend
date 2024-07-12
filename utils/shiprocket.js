@@ -245,6 +245,10 @@ exports.getPickUpAdress = async (shiprocketToken) => {
 };
 
 exports.getShipmentsById = async (shiprocketToken, shipmentId) => {
+  console.log("shiprocketToken==================================================================================================================================================================================================================",
+    shiprocketToken);
+  console.log("shipmentId==================================================================================================================================================================================================================",
+    shipmentId);
   try {
     if (!shiprocketToken) {
       throw new Error("Missing Shiprocket token");
@@ -258,7 +262,7 @@ exports.getShipmentsById = async (shiprocketToken, shipmentId) => {
     console.log("Fetching shipment with ID:", shipmentId);
 
     const response = await axios.get(
-      `https://apiv2.shiprocket.in/v1external/shipments/${shipmentId}`,
+      `https://apiv2.shiprocket.in/v1/external/orders/show/${shipmentId}`,
       {
         headers: {
           "Content-Type": "application/json",

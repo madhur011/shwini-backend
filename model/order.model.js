@@ -10,6 +10,8 @@ const orderSchema = new mongoose.Schema(
     confirmStatus: { type: Number, default: 1, eum: [1, 2, 3, 4, 5] }, // 1.pending  2.confirm 3.Delivered 4.Cancelled 5.Return
     paymentOrderId: { type: String },
     paymentId: { type: String },
+    shiprocket_order_id: { type: String },
+    shiprocket_shipment_id: { type: String },
     isCod: { type: Boolean, default: false },
     address: {
       fullName: { type: String, default: "" },

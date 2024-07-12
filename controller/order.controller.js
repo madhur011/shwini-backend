@@ -13,7 +13,9 @@ const crypto = require("crypto");
 const {
   authenticateShiprocket,
   createShiprocketOrder,
+  getShipmentsById,
 } = require("../utils/shiprocket");
+const { default: axios } = require("axios");
 
 //after payment this function call in payment controller other wise COD method
 exports.submitOrder = async (req, res) => {
@@ -104,6 +106,10 @@ exports.submitOrder = async (req, res) => {
         shiprocketToken,
         shiprocketOrder
       );
+
+      order.shiprocket_order_id = shiprocketResponse.order_id;
+      order.shiprocket_shipment_id = shiprocketResponse.shipment_id;
+
       console.log("Shiprocket order response:", shiprocketResponse);
       if (shiprocketResponse.status === "ERROR") {
         console.error(
@@ -171,7 +177,7 @@ exports.orderAll = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = page * limit;
 
-    const search = req.query.search;
+    const search = req.query.search || "";
     const fieldsToSearch = [
       "orderId",
       "title",
@@ -270,7 +276,7 @@ exports.orderAll = async (req, res) => {
     const paginatedResults = result || [];
 
     return response(res, 200, {
-      message: "Get order Successfully !!",
+      message: "Get orders successfully!",
       order: paginatedResults,
       orderTotal: totalCount,
     });
@@ -283,6 +289,9 @@ exports.orderAll = async (req, res) => {
 exports.userOrder = async (req, res) => {
   try {
     const { userId } = req.query;
+    const page = parseInt(req.query.page) || 0;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = page * limit;
     if (!userId) {
       return response(res, 201, { message: "Oops! Invalid details !" });
     }
@@ -294,11 +303,31 @@ exports.userOrder = async (req, res) => {
 
     const order = await Order.find({ userId: user._id })
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
       .populate("productId");
+    const shiprocketToken = await authenticateShiprocket();
+
+    console.log('order', order)
+    console.log("1==================================================================================================================================================================================================================");
+    let neworderArray = [];
+    for (const shipOrder of order) {
+      const shipmentDetailsResponse = await getShipmentsById(
+        shiprocketToken,
+        shipOrder.shiprocket_order_id
+      );
+
+
+      console.log("shipmentDetailsResponse", shipmentDetailsResponse);
+
+      neworderArray.push({ ...shipOrder._doc, ...shipmentDetailsResponse });
+    }
+
+    // getShipmentsById()
 
     return response(res, 200, {
       message: "Get order Successfully !!",
-      order,
+      order: neworderArray,
     });
   } catch (error) {
     console.log(error);

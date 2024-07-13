@@ -19,8 +19,8 @@ const { default: axios } = require("axios");
 
 //after payment this function call in payment controller other wise COD method
 exports.submitOrder = async (req, res) => {
-  console.log("req.body", req.body);
-  console.log("req.body", req.body.product.allProduct);
+  console.log("req.body1", req.body);
+  console.log("req.body2", req.body.product.allProduct);
   const {
     razorpay_payment_id,
     razorpay_order_id,
@@ -76,7 +76,6 @@ exports.submitOrder = async (req, res) => {
         billing_country: address.details.country,
         billing_email: user.email,
         billing_phone: address.phone,
-        shipping_is_billing: true,
         order_items: [
           {
             name: product.allProduct[i].title,
@@ -88,6 +87,15 @@ exports.submitOrder = async (req, res) => {
             hsn: "",
           },
         ],
+        shipping_is_billing: false,
+        shipping_customer_name: user.name,
+        shipping_address: address.details.socName,
+        shipping_email: user.email,
+        shipping_city: address.details.city,
+        shipping_pincode: address.details.pincode,
+        shipping_country: address.details.country,
+        shipping_state: address.details.state,
+        shipping_phone: address.phone,
         payment_method: isCod ? "COD" : "Prepaid",
         sub_total:
           product.allProduct[i].price * product.allProduct[i].productCount,
@@ -308,15 +316,16 @@ exports.userOrder = async (req, res) => {
       .populate("productId");
     const shiprocketToken = await authenticateShiprocket();
 
-    console.log('order', order)
-    console.log("1==================================================================================================================================================================================================================");
+    console.log("order", order);
+    console.log(
+      "1=================================================================================================================================================================================================================="
+    );
     let neworderArray = [];
     for (const shipOrder of order) {
       const shipmentDetailsResponse = await getShipmentsById(
         shiprocketToken,
         shipOrder.shiprocket_order_id
       );
-
 
       console.log("shipmentDetailsResponse", shipmentDetailsResponse);
 

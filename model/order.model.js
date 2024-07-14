@@ -27,3 +27,8 @@ const orderSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model("Order", orderSchema);
+
+orderSchema.index({ createdAt: -1 })
+orderSchema.index({ userId: -1 })
+orderSchema.index({ userId: -1 })
+orderSchema.index({ orderId: -1 })

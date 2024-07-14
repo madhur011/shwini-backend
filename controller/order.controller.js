@@ -14,6 +14,7 @@ const {
   authenticateShiprocket,
   createShiprocketOrder,
   getShipmentsById,
+  getInvoice,
 } = require("../utils/shiprocket");
 const { default: axios } = require("axios");
 
@@ -363,6 +364,28 @@ exports.updateStatus = async (req, res) => {
     return response(res, 200, {
       message: "Update order Status Successfully !!",
       order,
+    });
+  } catch (error) {
+    console.log(error);
+    return response(res, 500, error);
+  }
+};
+
+
+exports.getMyInvoice = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!ids) {
+      return response(res, 201, { message: "Oops! Invalid details !" });
+    }
+
+    const token = await authenticateShiprocket()
+
+    const myInvoice = await getInvoice(token, ids)
+
+    return response(res, 200, {
+      message: "Update order Status Successfully !!",
+      myInvoice,
     });
   } catch (error) {
     console.log(error);
